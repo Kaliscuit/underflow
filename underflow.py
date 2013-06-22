@@ -1,6 +1,6 @@
 import hashlib
 import redis
-from xml.dom import minidom
+import xml.etree.ElementTree as xml_tree
 from flask import Flask
 from flask import render_template
 from flask import request
@@ -10,12 +10,12 @@ token = 'underflow'
 r = redis.StrictRedis(host='localhost', port=6379, db=0)
 
 
-def parse_xml(xml_str, need_list):
-    xmldoc = minidom.parse(xml_str)
-    doc_list = []
-    for need in need_list:
-        doc_list.append(xmldoc.getElementsByTagName(need))
-    return doc_list
+def parse_xml(xml_str):
+    xml_doc = xml_tree.fromstring(xml_str)
+    doc_dict = {}
+    for child in xml_doc:
+        doc_dict[child.tag] = child.text
+    return doc_dict
 
 
 @app.route('/')
@@ -28,7 +28,8 @@ def weixin():
     if request.method == 'POST':
         xml_get = request.data
         r.set('weixin_post', repr(xml_get))
-        r.set('xml_p', repr(parse_xml(xml_get, ['ToUserName', 'FromUserName'])))
+        r.set('xml_p', repr(parse_xml(xml_get)))
+        dict = parse_xml(xml_get)
         
     signature = request.args.get('signature')
     timestamp = request.args.get('timestamp')
@@ -42,8 +43,17 @@ def weixin():
     arg_sha1 = hashlib.sha1()
     arg_sha1.update(arg_str)
     signature_server = arg_sha1.hexdigest()
+    text_template = """<xml>
+             <ToUserName><![CDATA[%s]]></ToUserName>
+             <FromUserName><![CDATA[%s]]></FromUserName>
+             <CreateTime>%d</CreateTime>
+             <MsgType><![CDATA[%s]]></MsgType>
+             <Content><![CDATA[%s]]></Content>
+             <FuncFlag>0</FuncFlag>
+             </xml>"""
+    text = text_template % (dict['FromUserName'], dict['ToUserName'], int(time.time()), 'text', dict['Content'])
     if signature == signature_server:
-        return '1'
+        return text
     else:
         return '0'
         # return repr(signature+timestamp+nonce+echostr)
