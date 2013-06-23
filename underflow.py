@@ -8,7 +8,7 @@ import xml.etree.ElementTree as xml_tree
 from flask import Flask
 from flask import render_template
 from flask import request
-import modules.joke as joke
+import modules.joke.main as joke
 
 app = Flask(__name__)
 token = 'underflow'
@@ -49,7 +49,7 @@ def weixin():
     arg_sha1.update(arg_str)
     signature_server = arg_sha1.hexdigest()
     if dict['Content'] == u'笑话' or dict['Content'] == 'joke':
-        dict['Content'] = joke.main.get_joke()
+        dict['Content'] = joke.get_joke()
     text_template = """<xml>
              <ToUserName><![CDATA[%s]]></ToUserName>
              <FromUserName><![CDATA[%s]]></FromUserName>
