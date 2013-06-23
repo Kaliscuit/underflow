@@ -25,7 +25,7 @@ def weixin():
     if request.method == 'POST':
         xml_get = request.data
         r.set('weixin_post', repr(xml_get))
-        r.set('xml_p', repr(parse_xml(xml_get)))
+        r.set('xml_p', repr(xml_parser.xml_to_dict(xml_get)))
         dict = xml_parser.xml_to_dict(xml_get)
         
     signature = request.args.get('signature')
