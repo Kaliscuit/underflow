@@ -4,23 +4,15 @@ import hashlib
 import redis
 import time
 import urllib2
-import xml.etree.ElementTree as xml_tree
 from flask import Flask
 from flask import render_template
 from flask import request
+import modules.xml_parser as xml_parser
 import modules.joke.main as joke
 
 app = Flask(__name__)
 token = 'underflow'
 r = redis.StrictRedis(host='localhost', port=6379, db=0)
-
-
-def parse_xml(xml_str):
-    xml_doc = xml_tree.fromstring(xml_str)
-    doc_dict = {}
-    for child in xml_doc:
-        doc_dict[child.tag] = child.text
-    return doc_dict
 
 
 @app.route('/')
@@ -34,7 +26,7 @@ def weixin():
         xml_get = request.data
         r.set('weixin_post', repr(xml_get))
         r.set('xml_p', repr(parse_xml(xml_get)))
-        dict = parse_xml(xml_get)
+        dict = xml_parser.xml_to_dict(xml_get)
         
     signature = request.args.get('signature')
     timestamp = request.args.get('timestamp')
