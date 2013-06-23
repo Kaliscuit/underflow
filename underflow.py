@@ -54,7 +54,7 @@ def weixin():
     arg_sha1 = hashlib.sha1()
     arg_sha1.update(arg_str)
     signature_server = arg_sha1.hexdigest()
-    if dict['Content'] == '笑话' or dict['Content'] == 'joke':
+    if dict['Content'] == u'笑话' or dict['Content'] == 'joke':
         dict['Content'] = get_joke()
     text_template = """<xml>
              <ToUserName><![CDATA[%s]]></ToUserName>
