@@ -43,8 +43,8 @@ def weixin():
     signature_server = arg_sha1.hexdigest()
     if dict['Content'] == u'笑话' or dict['Content'] == 'joke':
         dict['Content'] = joke.get_joke()
-    elif len(dict['Content'].split[' ']) > 1 and dict['Content'].split[' '][0] == 'python':
-        dict['Content'] = python_doc.get_doc(dict['Content'].split[' '][1])
+    elif len(dict['Content'].split(' ')) > 1 and dict['Content'].split(' ')[0] == 'python':
+        dict['Content'] = python_doc.get_doc(dict['Content'].split(' ')[1])
         
     text_template = """<xml>
              <ToUserName><![CDATA[%s]]></ToUserName>
