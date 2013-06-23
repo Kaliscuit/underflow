@@ -1,5 +1,5 @@
 import urllib2
-import ..xml_parser as xml_parser
+from .. import xml_parser as xml_parser
 
 
 def get_joke():
