@@ -8,6 +8,7 @@ import xml.etree.ElementTree as xml_tree
 from flask import Flask
 from flask import render_template
 from flask import request
+import modules.joke as joke
 
 app = Flask(__name__)
 token = 'underflow'
@@ -20,13 +21,6 @@ def parse_xml(xml_str):
     for child in xml_doc:
         doc_dict[child.tag] = child.text
     return doc_dict
-
-
-def get_joke():
-    response = urllib2.urlopen('http://www.djdkx.com/open/randxml')
-    html = response.read()
-    dict = parse_xml(html)
-    return dict['content']
 
 
 @app.route('/')
@@ -55,7 +49,7 @@ def weixin():
     arg_sha1.update(arg_str)
     signature_server = arg_sha1.hexdigest()
     if dict['Content'] == u'笑话' or dict['Content'] == 'joke':
-        dict['Content'] = get_joke()
+        dict['Content'] = joke.main.get_joke()
     text_template = """<xml>
              <ToUserName><![CDATA[%s]]></ToUserName>
              <FromUserName><![CDATA[%s]]></FromUserName>
@@ -74,4 +68,4 @@ def weixin():
 
 if __name__ == '__main__':
     app.debug = True
-    app.run()
+    app.run(host='0.0.0.0', port=80)
