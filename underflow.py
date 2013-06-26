@@ -83,7 +83,7 @@ def weixin():
                                 Content["subjects"][0]["title"], description,
                                 Content["subjects"][0]["images"]["large"], Content["subjects"][0]["alt"])
     else:
-        echostr = dict['Content']
+        echostr = text_template % (dict['FromUserName'], dict['ToUserName'], int(time.time()), 'text', dict['Content'])
 
     if signature == signature_server:
         return echostr
