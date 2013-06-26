@@ -77,8 +77,8 @@ def weixin():
         dict['Content'] = python_doc.get_doc(dict['Content'].split(' ')[1])
         echostr = text_template % (dict['FromUserName'], dict['ToUserName'], int(time.time()), 'text', dict['Content'])
     elif len(dict['Content'].split(' ')) > 1 and (dict['Content'].split(' ')[0] == u'电影' or dict['Content'].split(' ')[0] == 'movie'):
-        Content = douban_movie.query_movie_info(dict['Content'])
-        description = douban_movie.query_movie_details(dict['Content'])
+        Content = douban_movie.query_movie_info(dict['Content'].split(' ')[1])
+        description = douban_movie.query_movie_details(dict['Content'].split(' ')[1])
         echostr = pictextTpl % (dict['FromUserName'], dict['ToUserName'], str(int(time.time())),
                                 Content["subjects"][0]["title"], description,
                                 Content["subjects"][0]["images"]["large"], Content["subjects"][0]["alt"])
