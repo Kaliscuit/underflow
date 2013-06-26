@@ -43,7 +43,7 @@ def weixin():
     arg_sha1.update(arg_str)
     signature_server = arg_sha1.hexdigest()
 
-     text_template = """<xml>
+    text_template = """<xml>
              <ToUserName><![CDATA[%s]]></ToUserName>
              <FromUserName><![CDATA[%s]]></FromUserName>
              <CreateTime>%d</CreateTime>
