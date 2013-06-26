@@ -82,6 +82,8 @@ def weixin():
         echostr = pictextTpl % (dict['FromUserName'], dict['ToUserName'], str(int(time.time())),
                                 Content["subjects"][0]["title"], description,
                                 Content["subjects"][0]["images"]["large"], Content["subjects"][0]["alt"])
+    else:
+        echostr = dict['Content']
 
     if signature == signature_server:
         return echostr
