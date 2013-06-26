@@ -10,6 +10,7 @@ from flask import request
 import modules.xml_parser as xml_parser
 import modules.joke.main as joke
 import modules.python_doc.main as python_doc
+import modules.douban_movie.main as douban_movie
 
 app = Flask(__name__)
 token = 'underflow'
@@ -41,12 +42,8 @@ def weixin():
     arg_sha1 = hashlib.sha1()
     arg_sha1.update(arg_str)
     signature_server = arg_sha1.hexdigest()
-    if dict['Content'] == u'笑话' or dict['Content'] == 'joke':
-        dict['Content'] = joke.get_joke()
-    elif len(dict['Content'].split(' ')) > 1 and dict['Content'].split(' ')[0] == 'python':
-        dict['Content'] = python_doc.get_doc(dict['Content'].split(' ')[1])
-        
-    text_template = """<xml>
+
+     text_template = """<xml>
              <ToUserName><![CDATA[%s]]></ToUserName>
              <FromUserName><![CDATA[%s]]></FromUserName>
              <CreateTime>%d</CreateTime>
@@ -54,9 +51,40 @@ def weixin():
              <Content><![CDATA[%s]]></Content>
              <FuncFlag>0</FuncFlag>
              </xml>"""
-    text = text_template % (dict['FromUserName'], dict['ToUserName'], int(time.time()), 'text', dict['Content'])
+
+    pictextTpl = """<xml>
+                <ToUserName><![CDATA[%s]]></ToUserName>
+                <FromUserName><![CDATA[%s]]></FromUserName>
+                <CreateTime>%s</CreateTime>
+                <MsgType><![CDATA[news]]></MsgType>
+                <ArticleCount>1</ArticleCount>
+                <Articles>
+                <item>
+                <Title><![CDATA[%s]]></Title>
+                <Description><![CDATA[%s]]></Description>
+                <PicUrl><![CDATA[%s]]></PicUrl>
+                <Url><![CDATA[%s]]></Url>
+                </item>
+                </Articles>
+                <FuncFlag>1</FuncFlag>
+                </xml> """
+
+
+    if dict['Content'] == u'笑话' or dict['Content'] == 'joke':
+        dict['Content'] = joke.get_joke()
+        echostr = text_template % (dict['FromUserName'], dict['ToUserName'], int(time.time()), 'text', dict['Content'])
+    elif len(dict['Content'].split(' ')) > 1 and dict['Content'].split(' ')[0] == 'python':
+        dict['Content'] = python_doc.get_doc(dict['Content'].split(' ')[1])
+        echostr = text_template % (dict['FromUserName'], dict['ToUserName'], int(time.time()), 'text', dict['Content'])
+    elif len(dict['Content'].split(' ')) > 1 and (dict['Content'].split(' ')[0] == u'电影' or dict['Content'].split(' ')[0] == 'movie'):
+        Content = douban_movie.query_movie_info(dict['Content'])
+        description = douban_movie.query_movie_details(dict['Content'])
+        echostr = pictextTpl % (dict['FromUserName'], dict['ToUserName'], str(int(time.time())),
+                                Content["subjects"][0]["title"], description,
+                                Content["subjects"][0]["images"]["large"], Content["subjects"][0]["alt"])
+
     if signature == signature_server:
-        return text
+        return echostr
     else:
         return '0'
         # return repr(signature+timestamp+nonce+echostr)
